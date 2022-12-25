@@ -330,6 +330,37 @@ func (c *Client) PauseOpt(ctx context.Context, opt *PlayOptions) error {
 	return nil
 }
 
+// GetQueue gets the user's queue on the user's currently
+// active device. This call requires ScopeUserReadPlaybackState
+func (c *Client) GetQueue(ctx context.Context) error {
+	return c.GetQueueOpt(ctx, nil)
+}
+
+// GetQueueOpt is like GetQueue but with more options
+//
+// Only expects PlayOptions.DeviceID, all other options will be ignored
+func (c *Client) GetQueueOpt(ctx context.Context, opt *PlayOptions) error {
+	spotifyURL := c.baseURL + "me/player/queue"
+	v := url.Values{}
+
+	if opt != nil {
+		if opt.DeviceID != nil {
+			v.Set("device_id", opt.DeviceID.String())
+		}
+	}
+
+	if params := v.Encode(); params != "" {
+		spotifyURL += "?" + params
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, spotifyURL, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	return c.execute(req, nil, http.StatusNoContent)
+}
+
 // QueueSong adds a song to the user's queue on the user's currently
 // active device. This call requires ScopeUserModifyPlaybackState
 // in order to modify the player state
