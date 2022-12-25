@@ -338,21 +338,8 @@ func (c *Client) PauseOpt(ctx context.Context, opt *PlayOptions) error {
 // GetQueue gets the user's queue on the user's currently
 // active device. This call requires ScopeUserReadPlaybackState
 func (c *Client) GetQueue(ctx context.Context) (*Queue, error) {
-	return c.GetQueueOpt(ctx, nil)
-}
-
-// GetQueueOpt is like GetQueue but with more options
-//
-// Only expects PlayOptions.DeviceID, all other options will be ignored
-func (c *Client) GetQueueOpt(ctx context.Context, opt *PlayOptions) (*Queue, error) {
 	spotifyURL := c.baseURL + "me/player/queue"
 	v := url.Values{}
-
-	if opt != nil {
-		if opt.DeviceID != nil {
-			v.Set("device_id", opt.DeviceID.String())
-		}
-	}
 
 	if params := v.Encode(); params != "" {
 		spotifyURL += "?" + params
